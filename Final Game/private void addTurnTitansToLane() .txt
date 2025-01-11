@@ -1,0 +1,131 @@
+	private void addTurnTitansToLane() {
+		// if(!this.approachingTitans.isEmpty()){
+		// for(int i=0;i<this.numberOfTitansPerTurn;i++){
+		// Titan t= this.approachingTitans.get(0);
+		// int size = lanes.size();
+		// Lane l= lanes.;
+		// l.addTitan(t);
+		// l.updateLaneDangerLevel(); // do we update it here?
+		// lanes.add(l);
+		// this.approachingTitans.remove(0);
+		// }
+		// }
+
+		if (!this.approachingTitans.isEmpty()) {
+	
+			Lane l = (Lane) this.lanes.peek();
+			
+			if(this.approachingTitans.size()>=this.numberOfTitansPerTurn){
+				for(int i=0;i<this.numberOfTitansPerTurn;i++){
+			
+					Titan t = this.approachingTitans.remove(0);
+					l.addTitan(t);
+					}
+			}
+			else   if(this.approachingTitans.size()<this.numberOfTitansPerTurn){
+		    	 int size = this.approachingTitans.size();
+		    	 int remainingTitansToAddInThisTurn= this.numberOfTitansPerTurn - size;
+		    	 for(int i=0;i<size;i++){
+		 			
+						Titan t = this.approachingTitans.remove(0);
+						l.addTitan(t);
+					}
+		    	 //after this loop approaching titans is empty, so we will refill it and take from 
+		    	 //the refilled array the rest of titans per turn
+		    	 
+		    	 this.refillApproachingTitans();
+		    	 
+		    	 for(int i=0;i<remainingTitansToAddInThisTurn;i++){
+			 			
+						Titan t = this.approachingTitans.remove(0);
+						l.addTitan(t);
+						}
+		    	 
+		     }
+		}
+
+		else
+			this.refillApproachingTitans();
+	}
+int totalResourcesGained = 0;
+		Stack<Titan> s = new Stack<Titan>();
+		for(int i=0;!laneTitans.isEmpty()&&i<5;i++){
+			s.add((Titan)laneTitans.poll());
+		}
+		
+		for(int i=0;!s.isEmpty()&&i<5;i++){
+			Titan t = s.pop();
+			totalResourcesGained = totalResourcesGained + this.attack(t);
+			if(!t.isDefeated())
+		    laneTitans.add(t);
+		}
+		return totalResourcesGained;
+		
+		     
+		    	
+		
+		    }
+	private void updateLanesDangerLevels() {
+		for (Lane l : lanes) {
+			if (!l.isLaneLost()) {
+				l.updateLaneDangerLevel();
+			}
+			if(l.isLaneLost()) //condition is added by shahd
+				this.lanes.remove(l);
+		}
+	}
+private int performTitansAttacks() {
+		int result = 0;
+		for (Lane l : lanes) {
+			result = result + l.performLaneTitansAttacks();
+			if (l.isLaneLost())
+				lanes.remove(l);
+		}
+		resourcesGathered += result;
+		score += result;
+		return result;
+		
+		
+		
+		
+		/*
+		 * int result=0; 
+		 * PriorityQueue<Lane> q= new PriorityQueue<Lane>();
+		 * while(!this.lanes.isEmpty()){ 
+		 * Lane l = lanes.poll(); 
+		 * result = result + l.performLaneTitansAttacks();
+		 *  q.add(l) ; 
+		 *  } 
+		 *  while(!q.isEmpty()){
+		 * Lane w=q.peek();
+		 *  if(!w.isLaneLost())
+		 *   q.add(w); 
+		 *   } 
+		 *   return result;
+		 */
+
+	}
+private int performWeaponsAttacks() {
+		int accumulatedResources = 0;
+		for (Lane l : lanes) {
+			if (!l.isLaneLost()) {
+				accumulatedResources = accumulatedResources
+						+ l.performLaneWeaponsAttacks();
+			}
+		}
+		return accumulatedResources;
+	}
+public void purchaseWeapon(int weaponCode, Lane lane) throws InsufficientResourcesException,
+		InvalidLaneException{
+			
+		if(lane.isLaneLost())
+		   throw new InvalidLaneException("This lane is already lost");
+		
+		else{
+		   FactoryResponse f = this.weaponFactory.buyWeapon( this.resourcesGathered, weaponCode);
+		   Weapon w =f.getWeapon();
+		   lane.addWeapon(w);
+		   this.resourcesGathered = f.getRemainingResources();
+		}
+		this.performTurn();
+		}
